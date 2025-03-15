@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Event Schedule Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .input-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #7289da;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #677bc4;
+        }
+        #output {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 5px 10px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Discord Event Schedule Generator</h1>
+    
+    <div class="input-section">
+        <div class="form-group">
+            <label for="eventName">Event Name:</label>
+            <input type="text" id="eventName" placeholder="e.g., Karaoke Night">
+        </div>
+        
+        <div class="form-group">
+            <label for="hostName">Host Discord Name:</label>
+            <input type="text" id="hostName" placeholder="e.g., imlct">
+        </div>
+        
+        <div class="form-group">
+            <label for="dateTime">Date and Time (UTC):</label>
+            <input type="datetime-local" id="dateTime">
+        </div>
+        
+        <div class="form-group">
+            <label for="language">Language (optional):</label>
+            <input type="text" id="language" placeholder="e.g., CN, ENG/RU">
+        </div>
+        
+        <button onclick="addEvent()">Add Event</button>
+        <button onclick="generateSchedule()">Generate Schedule</button>
+    </div>
+
+    <table id="eventTable">
+        <thead>
+            <tr>
+                <th>Event Name</th>
+                <th>Host</th>
+                <th>Date & Time (UTC)</th>
+                <th>Language</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="eventList"></tbody>
+    </table>
+
+    <div id="output"></div>
+
+    <script>
+        let events = [];
+
+        function addEvent() {
+            const eventName = document.getElementById('eventName').value;
+            const hostName = document.getElementById('hostName').value;
+            const dateTime = document.getElementById('dateTime').value;
+            const language = document.getElementById('language').value;
+
+            if (!eventName || !hostName || !dateTime) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const date = new Date(dateTime);
+            const timestamp = Math.floor(date.getTime() / 1000);
+
+            const event = {
+                name: eventName,
+                host: hostName,
+                timestamp: timestamp,
+                language: language
+            };
+
+            events.push(event);
+            updateEventTable();
+
+            // Clear inputs
+            document.getElementById('eventName').value = '';
+            document.getElementById('hostName').value = '';
+            document.getElementById('dateTime').value = '';
+            document.getElementById('language').value = '';
+        }
+
+        function deleteEvent(index) {
+            events.splice(index, 1);
+            updateEventTable();
+        }
+
+        function updateEventTable() {
+            const tbody = document.getElementById('eventList');
+            tbody.innerHTML = '';
+
+            events.forEach((event, index) => {
+                const row = document.createElement('tr');
+                const date = new Date(event.timestamp * 1000);
+                const dateStr = date.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                row.innerHTML = `
+                    <td>${event.name}</td>
+                    <td>@${event.host}</td>
+                    <td>${dateStr}</td>
+                    <td>${event.language || '-'}</td>
+                    <td><button class="delete-btn" onclick="deleteEvent(${index})">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateSchedule() {
+            if (events.length === 0) {
+                alert('Please add at least one event');
+                return;
+            }
+
+            // Group events by date
+            const eventsByDate = {};
+            events.forEach(event => {
+                const date = new Date(event.timestamp * 1000);
+                const dateKey = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+                if (!eventsByDate[dateKey]) {
+                    eventsByDate[dateKey] = [];
+                }
+                eventsByDate[dateKey].push(event);
+            });
+
+            // Generate output
+            let output = '## Hey Guys :yayay:\nDo not miss this week’s exciting events!\n\n**Schedule:**\n\n';
+            
+            for (const [date, dateEvents] of Object.entries(eventsByDate)) {
+                const weekday = new Date(dateEvents[0].timestamp * 1000).toLocaleString('en-US', { weekday: 'short' });
+                output += `**${date} - ${weekday}**\n`;
+                
+                dateEvents.sort((a, b) => a.timestamp - b.timestamp);
+                
+                dateEvents.forEach(event => {
+                    const langStr = event.language ? `(${event.language}) ` : '';
+                    output += `- ${event.name} ${langStr}<t:${event.timestamp}:F> @${event.host}\n`;
+                });
+                
+                output += '\n';
+            }
+
+            document.getElementById('output').textContent = output;
+            events = [];
+            updateEventTable();
+        }
+    </script>
+</body>
+</html>
