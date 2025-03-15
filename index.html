@@ -10,10 +10,13 @@
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #f0f0f0;
+            background-image: url('751.png'); /* Added background image */
+            background-size: cover; /* Ensures the image covers the entire background */
+            background-position: center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents tiling */
         }
         .input-section {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white for readability */
             padding: 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -43,7 +46,7 @@
             background-color: #677bc4;
         }
         #output {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white for readability */
             padding: 20px;
             border-radius: 5px;
             white-space: pre-wrap;
@@ -52,7 +55,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white for readability */
             margin-top: 20px;
             border-radius: 5px;
         }
@@ -62,7 +65,7 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f5f5f5;
+            background-color: rgba(245, 245, 245, 0.9); /* Slightly different semi-transparent shade */
         }
         .delete-btn {
             background-color: #dc3545;
@@ -149,6 +152,9 @@
             document.getElementById('hostName').value = '';
             document.getElementById('dateTime').value = '';
             document.getElementById('language').value = '';
+
+            // Debug: Show the UTC time and timestamp for verification
+            console.log(`Input: ${dateTime}, UTC Time: ${date.toUTCString()}, Timestamp: ${timestamp}`);
         }
 
         function deleteEvent(index) {
