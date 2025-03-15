@@ -130,7 +130,8 @@
                 return;
             }
 
-            const date = new Date(dateTime);
+            // Parse the input as UTC
+            const date = new Date(dateTime + 'Z'); // Adding 'Z' forces UTC interpretation
             const timestamp = Math.floor(date.getTime() / 1000);
 
             const event = {
@@ -168,7 +169,8 @@
                     year: 'numeric',
                     hour: 'numeric',
                     minute: '2-digit',
-                    hour12: true
+                    hour12: true,
+                    timeZone: 'UTC'
                 });
 
                 row.innerHTML = `
@@ -192,7 +194,7 @@
             const eventsByDate = {};
             events.forEach(event => {
                 const date = new Date(event.timestamp * 1000);
-                const dateKey = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+                const dateKey = `${String(date.getUTCMonth() + 1).padStart(2, '0')}/${String(date.getUTCDate()).padStart(2, '0')}`;
                 if (!eventsByDate[dateKey]) {
                     eventsByDate[dateKey] = [];
                 }
@@ -203,7 +205,10 @@
             let output = '## Hey Guys :yayay:\nDo not miss this week’s exciting events!\n\n**Schedule:**\n\n';
             
             for (const [date, dateEvents] of Object.entries(eventsByDate)) {
-                const weekday = new Date(dateEvents[0].timestamp * 1000).toLocaleString('en-US', { weekday: 'short' });
+                const weekday = new Date(dateEvents[0].timestamp * 1000).toLocaleString('en-US', { 
+                    weekday: 'short',
+                    timeZone: 'UTC'
+                });
                 output += `**${date} - ${weekday}**\n`;
                 
                 dateEvents.sort((a, b) => a.timestamp - b.timestamp);
@@ -215,7 +220,8 @@
                         day: 'numeric',
                         hour: 'numeric',
                         minute: '2-digit',
-                        hour12: true
+                        hour12: true,
+                        timeZone: 'UTC'
                     });
                     const langStr = event.language ? `(${event.language}) ` : '';
                     output += `- ${event.name} ${langStr}UTC ${dateStr} (<t:${event.timestamp}:R>) @${event.host}\n`;
@@ -223,6 +229,9 @@
                 
                 output += '\n';
             }
+
+            // Add @everyone at the end
+            output += '@everyone';
 
             document.getElementById('output').textContent = output;
             events = [];
