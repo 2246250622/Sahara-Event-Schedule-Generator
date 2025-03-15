@@ -174,7 +174,7 @@
                 row.innerHTML = `
                     <td>${event.name}</td>
                     <td>@${event.host}</td>
-                    <td>${dateStr}</td>
+                    <td>${dateStr} UTC</td>
                     <td>${event.language || '-'}</td>
                     <td><button class="delete-btn" onclick="deleteEvent(${index})">Delete</button></td>
                 `;
@@ -210,7 +210,7 @@
                 
                 dateEvents.forEach(event => {
                     const langStr = event.language ? `(${event.language}) ` : '';
-                    output += `- ${event.name} ${langStr}<t:${event.timestamp}:F> @${event.host}\n`;
+                    output += `- ${event.name} ${langStr}<t:${event.timestamp}:F> UTC (<t:${event.timestamp}:R>) @${event.host}\n`;
                 });
                 
                 output += '\n';
