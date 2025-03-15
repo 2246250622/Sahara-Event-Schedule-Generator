@@ -209,8 +209,16 @@
                 dateEvents.sort((a, b) => a.timestamp - b.timestamp);
                 
                 dateEvents.forEach(event => {
+                    const date = new Date(event.timestamp * 1000);
+                    const dateStr = date.toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    });
                     const langStr = event.language ? `(${event.language}) ` : '';
-                    output += `- ${event.name} ${langStr}<t:${event.timestamp}:F> UTC (<t:${event.timestamp}:R>) @${event.host}\n`;
+                    output += `- ${event.name} ${langStr}UTC ${dateStr} (<t:${event.timestamp}:R>) @${event.host}\n`;
                 });
                 
                 output += '\n';
